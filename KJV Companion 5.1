@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KJV Harmony Companion</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap');
+        :root { --bg: #f8f1e3; --text: #3c2f1e; --accent: #8b5a2b; --gold: #d4af37; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; }
+        .title-font { font-family: 'EB Garamond', serif; }
+        .nav-button { transition: all 0.3s; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- HEADER, SCREENS, NAVIGATION unchanged from your pasted version – only script changes below -->
+    <!-- (Copy the entire <body> and styles from your current index.html here – I kept them identical so you can paste just the new <script> section if you prefer) -->
+
+    <script>
+        function initTailwind() { tailwind.config = { content: ["./index.html"], theme: { extend: {} } }; }
+
+        // ... keep all your existing functions (generateOutline, syncGitHubTask, renderAnnex, etc.) exactly as they are ...
+
+        // NEW: Register Service Worker for full PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/Kjv-companion/sw.js')
+                    .then(reg => console.log('%c✅ Service Worker registered – PWA ready to install', 'color:#d4af37'))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        window.onload = function() {
+            initTailwind();
+            renderAnnex();
+            renderArchive();
+            console.log('%c✅ KJV Harmony Companion — SAFE EDITION v5.1 | Paul Harvey Voice | Now working on GitHub Pages', 'color:#d4af37; font-size:11px');
+        };
+    </script>
+</body>
+</html>
