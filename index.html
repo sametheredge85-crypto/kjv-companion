@@ -1,30 +1,409 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KJV Harmony Companion</title>
+
+    <!-- iOS PWA Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22KJV Harmony Companion%22,%22short_name%22:%22KJV Harmony%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#f8f1e3%22,%22theme_color%22:%22#8b5a2b%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E📖%3C/text%3E%3C/svg%27%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
+    <meta name="apple-mobile-web-app-title" content="KJV Harmony">
+
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%238b5a2b' width='100' height='100'/%3E%3Ctext y='.9em' x='50%25' font-size='90' text-anchor='middle'%3E📖%3C/text%3E%3C/svg%3E">
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#8b5a2b">
+
     <style>
-        /* [All CSS from your PDF pages 1–5 is here — fully intact, no omissions] */
         @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap');
-        :root { --bg: #f8f1e3; --text: #3c2f1e; --accent: #8b5a2b; --gold: #d4af37; --light: #fffaf0; }
-        /* ... full CSS continues exactly as extracted ... */
+
+        :root {
+            --bg: #f8f1e3;
+            --text: #3c2f1e;
+            --accent: #8b5a2b;
+            --gold: #d4af37;
+            --light: #fffaf0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            max-width: 428px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header {
+            background: var(--accent);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .title {
+            font-family: 'EB Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 18px;
+            border-radius: 12px;
+            width: 100%;
+            margin: 12px 0;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+
+        .harmony-btn {
+            background: linear-gradient(90deg, #8b5a2b, #d4af37);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4af37;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 12px;
+            -webkit-appearance: none;
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 428px;
+            background: #3c2f1e;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav button:active {
+            opacity: 0.6;
+        }
+
+        .card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .flame {
+            font-size: 24px;
+            margin-left: 8px;
+        }
+
+        .prayer {
+            font-family: 'EB Garamond', serif;
+            font-size: 22px;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .harmony-result {
+            background: var(--light);
+            border-left: 4px solid var(--gold);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .verse-text {
+            font-family: 'EB Garamond', serif;
+            font-size: 20px;
+            line-height: 1.8;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
-    <!-- Header, Home/Prayer Screen, Explorer, Annex (with new Entry 7), Archive, Audit — all screens fully present -->
+
+    <div class="header">
+        <div class="title">KJV Harmony Companion</div>
+        <div class="subtitle">Line upon line &#8226; Precept upon precept &#8226; Canon-Lock Protected</div>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen active">
+        <div class="card">
+            <div class="prayer">Lord, what would you have me see in thy Word?</div>
+            <ul style="padding-left:20px;line-height:1.8;">
+                <li>Full unbreakable KJV harmony</li>
+                <li>Gentle insights from the text itself</li>
+                <li>Application for everyday life</li>
+                <li>Private Preacher's Companion mode active</li>
+            </ul>
+        </div>
+        <button onclick="navigateTo('explorer')" class="btn">Start Harmony Explorer</button>
+    </div>
+
+    <!-- Explorer Screen -->
+    <div id="explorer-screen" class="screen">
+        <h2 style="text-align:center; margin-bottom:20px; color:#3c2f1e;">KJV Harmony Explorer</h2>
+        <input id="verse-input" type="text" class="search-box" placeholder="Type any verse or question... (example: John 3:16, Easter, wisdom)" onkeypress="if(event.key==='Enter') getHarmony()">
+        <button onclick="getHarmony()" class="btn harmony-btn">
+            <span>Get Harmony</span><span class="flame">&#x1F525;</span>
+        </button>
+        <div id="harmony-result" style="display:none;"></div>
+    </div>
+
+    <!-- Annex Screen -->
+    <div id="annex-screen" class="screen">
+        <h2 style="text-align:center; margin-bottom:16px;">Annex Library</h2>
+        <input id="annex-search" type="text" class="search-box" placeholder="Search the Annex Library for... (e.g., wisdom and the heart)">
+        <button onclick="searchAnnex()" class="btn" style="background:#5c4630;">Search Storehouse</button>
+        <div id="annex-results" style="margin-top:20px;"></div>
+
+        <div style="margin-top:30px; font-size:14px; background:#fffaf0; padding:16px; border-radius:12px;">
+            <strong>Sam's Private Preacher's Companion &mdash; Annex Library</strong><br>
+            7 Sub-Annexes &bull; Canon-Lock Protected<br><br>
+            <small>The Nature and Course of Faith &bull; Approved Workmen &bull; Heavenly Courtroom &bull; Eternal Grace of Election &bull; Trials &amp; Keeping Power &bull; Spiritual Warfare &bull; Wisdom from Above</small>
+        </div>
+    </div>
+
     <!-- Bottom Navigation -->
-    <div class="nav"> ... </div>
+    <div class="nav">
+        <button onclick="navigateTo('home')">&#x1F3E0; Home</button>
+        <button onclick="navigateTo('explorer')">&#x1F50D; Explorer</button>
+        <button onclick="navigateTo('annex')">&#x1F4DA; Annex</button>
+    </div>
 
     <script>
-        // Full JavaScript (navigation, getHarmony, searchAnnex, localStorage, PWA load event)
-        // Annex Library now includes Entry 7 (Resurrection Power in Regeneration)
-        let annexLibrary = { ... /* your original 6 entries plus new Entry 7 */ };
-        // All functions intact
+        // ============== NAVIGATION ==============
+        function navigateTo(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screen + '-screen').classList.add('active');
+        }
+
+        // ============== KJV DATA ==============
+        const kjvData = {
+            "john 3:16": {
+                verse: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life. \u2014 John 3:16",
+                context: "John 3:1-21 \u2014 Nicodemus comes by night. Jesus teaches the new birth of the Spirit. The bronze serpent type (v.14). Belief as the instrument for those quickened. Condemnation for loving darkness (vv.19-21).",
+                harmony: [
+                    "John 1:12-13 \u2014 Born, not of blood, nor of the will of the flesh, nor of the will of man, but of God.",
+                    "Ephesians 2:1,4-5 \u2014 You hath he quickened, who were dead in trespasses and sins... But God, who is rich in mercy, hath quickened us together with Christ.",
+                    "Ezekiel 36:26-27 \u2014 A new heart also will I give you... and I will put my spirit within you.",
+                    "Romans 5:8 \u2014 But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."
+                ],
+                insights: "The passage presents God's initiating love and the sovereign work of the Spirit in the new birth. 'Whosoever believeth' describes the God-enabled response that receives everlasting life.",
+                application: "In daily trials or doubt, look to Christ's finished work as the bronze serpent was lifted. Rest in His finished work."
+            },
+            "easter": {
+                verse: "He is not here, but is risen: remember how he spake unto you when he was yet in Galilee, saying, The Son of man must be delivered into the hands of sinful men, and be crucified, and the third day rise again. \u2014 Luke 24:6-7",
+                context: "Luke 24, John 20, Matthew 28 \u2014 The women find the empty tomb. Disciples hide behind locked doors for fear. Jesus appears, shows His hands and side, breathes peace.",
+                harmony: [
+                    "Luke 24:6-7 \u2014 Remember how He told you...",
+                    "John 20:19 \u2014 The doors were shut where the disciples were assembled for fear of the Jews...",
+                    "Matthew 28:10 \u2014 Go tell my brethren that they go into Galilee, and there shall they see me."
+                ],
+                insights: "The very disciples who walked with the Lord still doubted and hid. Yet the risen Christ walked through their locked door in grace \u2014 not to scold, but to say 'Peace be with you.'",
+                application: "Whatever locked room of fear, shame, or doubt thou remainest in, the same Jesus who quickeneth the dead appears and says: Be not afraid."
+            },
+            "proverbs 8:10-12": {
+                verse: "Receive my instruction, and not silver; and knowledge rather than choice gold. For wisdom is better than rubies; and all the things that may be desired are not to be compared to it. I wisdom dwell with prudence, and find out knowledge of witty inventions. \u2014 Proverbs 8:10-12",
+                context: "Proverbs 8 \u2014 Wisdom personified calls in the streets. She has been with God from the beginning.",
+                harmony: [
+                    "Proverbs 8:10-11 \u2014 Wisdom is better than silver, gold, and rubies.",
+                    "Proverbs 8:12 \u2014 Wisdom dwells with prudence and reveals devices and plots.",
+                    "James 1:5 \u2014 If any lack wisdom, let him ask of God, that giveth to all men liberally."
+                ],
+                insights: "In a materialistic world, nothing compares to divine wisdom. She grants prudence and discernment against evil schemes.",
+                application: "Choose Wisdom daily over the glittering treasures of this age. Ask of God who giveth liberally."
+            },
+            "james 1:5": {
+                verse: "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him. \u2014 James 1:5",
+                context: "James 1:2-8 \u2014 In the midst of trials, when wisdom is lacking, God invites us to ask.",
+                harmony: [
+                    "James 1:5 \u2014 Ask God liberally, He upbraideth not.",
+                    "Proverbs 2:6 \u2014 For the LORD giveth wisdom: out of his mouth cometh knowledge and understanding.",
+                    "1 Corinthians 1:30 \u2014 Christ Jesus, who of God is made unto us wisdom, and righteousness, and sanctification, and redemption."
+                ],
+                insights: "God doesn't scold us for lacking wisdom. He invites the request and gives generously to all who ask in faith.",
+                application: "In every trial, every decision, ask Him. He will not rebuke you for asking. Christ is your wisdom."
+            },
+            "wisdom": {
+                verse: "The fear of the LORD is the beginning of wisdom: and the knowledge of the holy is understanding. \u2014 Proverbs 9:10",
+                context: "Proverbs 9 \u2014 Wisdom's invitation contrasted with Folly's seduction. True wisdom begins with reverence.",
+                harmony: [
+                    "Proverbs 9:10 \u2014 Fear of the LORD is the beginning of wisdom.",
+                    "Proverbs 1:7 \u2014 The fear of the LORD is the beginning of knowledge.",
+                    "Job 28:28 \u2014 Behold, the fear of the Lord, that is wisdom."
+                ],
+                insights: "True wisdom begins with reverence for God. Apart from Him, we have only clever folly dressed in wisdom's clothing.",
+                application: "Submit your understanding to Him first. Let every thought bow to His Word before it governs your life."
+            },
+            "isaiah 42": {
+                verse: "Behold my servant, whom I uphold; mine elect, in whom my soul delighteth; I have put my spirit upon him: he shall bring forth judgment to the Gentiles. \u2014 Isaiah 42:1",
+                context: "Isaiah 42:1-4 \u2014 The gentle Servant of the Lord, Christ Jesus, who will not break a bruised reed nor quench smoking flax.",
+                harmony: [
+                    "Matthew 12:20 \u2014 A bruised reed shall he not break, and smoking flax shall he not quench, till he send forth judgment unto victory.",
+                    "Isaiah 42:3 \u2014 He shall not fail nor be discouraged, till he have set judgment in the earth."
+                ],
+                insights: "The elect Servant is tender with the weak and failing. He is gentle with those who are broken and barely burning.",
+                application: "The same Lord who quickeneth the dead is gentle with thee in thy frailty. Come meet Him where He calls thee."
+            }
+        };
+
+        // ============== ANNEX LIBRARY ==============
+        let annexLibrary = JSON.parse(localStorage.getItem('samAnnex')) || {
+            subAnnexes: [
+                { name: "The Nature and Course of Faith", entry: "Entry 1 \u2014 Cause and Course of Faith (Romans 8:15-17). Fully harmonised. Life precedes response." },
+                { name: "Approved Workmen and Labor in Christ", entry: "Entry 2 \u2014 Do You Want to Be a Worker? (Ephesians 2:10, 2 Timothy 2:15). Fully harmonised." },
+                { name: "The Heavenly Courtroom and Names Secured", entry: "Entry 3 \u2014 Books Opened, Names Secured (Daniel 7:9-10). Fully harmonised." },
+                { name: "Eternal Grace of Election and Predestination", entry: "Entry 4 \u2014 Eternal Grace (John 6:37). Fully harmonised." },
+                { name: "Trials, Frailty, and God's Keeping Power", entry: "Entry 5 \u2014 When Flesh and Heart Fail (Psalm 73:26). Fully harmonised." },
+                { name: "Spiritual Warfare and Victory in Christ", entry: "Entry 6 \u2014 The Thief at the Door (John 10:10). Fully harmonised." },
+                { name: "Wisdom from Above", entry: "Entry 7 \u2014 Thinking Biblically About Man (Proverbs 8\u20139, James 3:17). Fully harmonised with the sovereign grace of God." }
+            ]
+        };
+
+        function saveAnnex() {
+            localStorage.setItem('samAnnex', JSON.stringify(annexLibrary));
+        }
+
+        // ============== SEARCH & DISPLAY ==============
+        function getHarmony() {
+            const input = document.getElementById('verse-input').value.toLowerCase().trim();
+            const result = kjvData[input];
+            const resultDiv = document.getElementById('harmony-result');
+
+            if (result) {
+                resultDiv.innerHTML =
+                    '<div class="harmony-result">' +
+                    '<div class="verse-text">' + result.verse + '</div>' +
+                    '<div class="section-title">Context:</div>' +
+                    '<p>' + result.context + '</p>' +
+                    '<div class="section-title">Harmony of Scripture:</div>' +
+                    '<ul style="padding-left:20px; line-height:1.8;">' +
+                    result.harmony.map(function(h) { return '<li>' + h + '</li>'; }).join('') +
+                    '</ul>' +
+                    '<div class="section-title">Insights:</div>' +
+                    '<p>' + result.insights + '</p>' +
+                    '<div class="section-title">Application:</div>' +
+                    '<p style="font-style:italic;">' + result.application + '</p>' +
+                    '</div>';
+                resultDiv.style.display = 'block';
+            } else {
+                resultDiv.innerHTML =
+                    '<div class="card"><p style="text-align:center; color:#8b5a2b;">' +
+                    'No harmony found for "<strong>' + input + '</strong>".<br><br>' +
+                    'Try: <strong>john 3:16</strong>, <strong>easter</strong>, <strong>wisdom</strong>, ' +
+                    '<strong>proverbs 8:10-12</strong>, <strong>james 1:5</strong>, or <strong>isaiah 42</strong>' +
+                    '</p></div>';
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        function searchAnnex() {
+            const query = document.getElementById('annex-search').value.toLowerCase().trim();
+            const resultsDiv = document.getElementById('annex-results');
+
+            if (!query) {
+                resultsDiv.innerHTML = '<p style="text-align:center; color:#8b5a2b;">Enter a topic, e.g., "wisdom and the heart" or "faith and election"</p>';
+                return;
+            }
+
+            const matches = annexLibrary.subAnnexes.filter(function(sub) {
+                return sub.name.toLowerCase().includes(query) || sub.entry.toLowerCase().includes(query);
+            });
+
+            if (matches.length > 0) {
+                resultsDiv.innerHTML = matches.map(function(sub) {
+                    return '<div class="card"><strong style="color:#8b5a2b;">' + sub.name + '</strong><br>' +
+                        '<p style="margin-top:8px;">' + sub.entry + '</p>' +
+                        '<small style="color:#8b5a2b;">Fully harmonised &bull; Tied to finished work of Christ</small></div>';
+                }).join('');
+            } else {
+                resultsDiv.innerHTML =
+                    '<div class="card"><p style="text-align:center; color:#8b5a2b;">' +
+                    'No results for "<strong>' + query + '</strong>". Try: <strong>wisdom</strong>, <strong>faith</strong>, <strong>grace</strong>, or <strong>trials</strong>' +
+                    '</p></div>';
+            }
+        }
+
+        // ============== SERVICE WORKER REGISTRATION ==============
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(reg) { console.log('%c\u2705 Service Worker registered \u2014 PWA ready to install', 'color:#d4af37'); })
+                    .catch(function(err) { console.log('Service Worker registration failed:', err); });
+            });
+        }
+
+        window.addEventListener('load', function() {
+            console.log('%cKJV Harmony Companion \u2014 Canon-Lock Protected \u2022 Ready for Sam', 'color:#8b5a2b; font-family:monospace');
+        });
+
+        document.addEventListener('touchstart', function() {}, {passive: true});
     </script>
 </body>
 </html>
