@@ -1,6 +1,3 @@
-# Kjv-companion
-KJV Harmony Suite
-
 ## Macedonia Primitive Baptist Church (Original Doctrine)
 **Section, Jackson County, Alabama**  
 Constituted in the 1860s • Relocated to current building in 1999  
