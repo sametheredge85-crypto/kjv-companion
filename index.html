@@ -1,30 +1,1273 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KJV Harmony Companion</title>
+    <meta name="description" content="A KJV Bible harmony tool for preachers and believers — whole context, whole counsel of God.">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22KJV Harmony Companion%22,%22short_name%22:%22KJV Harmony%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#f8f1e3%22,%22theme_color%22:%22#8b5a2b%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E📖%3C/text%3E%3C/svg%27%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#8b5a2b">
+    <link rel="manifest" href="manifest.json">
     <style>
-        /* [All CSS from your PDF pages 1–5 is here — fully intact, no omissions] */
-        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap');
-        :root { --bg: #f8f1e3; --text: #3c2f1e; --accent: #8b5a2b; --gold: #d4af37; --light: #fffaf0; }
-        /* ... full CSS continues exactly as extracted ... */
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+
+        :root {
+            --bg: #f8f1e3;
+            --text: #3c2f1e;
+            --accent: #8b5a2b;
+            --gold: #d4af37;
+            --light: #fffaf0;
+            --card: #ffffff;
+            --border: #e8d5b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            max-width: 540px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 88px;
+            overflow-x: hidden;
+        }
+
+        /* ---- Header ---- */
+        .header {
+            background: linear-gradient(to bottom, #2c1f0e, #5c4630);
+            color: var(--light);
+            padding: 20px 16px 14px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+        }
+        .header-title {
+            font-family: 'EB Garamond', serif;
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .header-subtitle {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ---- Bottom Navigation ---- */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 540px;
+            background: var(--light);
+            border-top: 2px solid var(--gold);
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+            box-shadow: 0 -3px 14px rgba(0,0,0,0.13);
+            z-index: 200;
+        }
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 9px;
+            color: #a07850;
+            padding: 4px 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-width: 48px;
+            user-select: none;
+        }
+        .nav-btn.active { background: #f0e8d8; color: #3c2f1e; font-weight: 600; }
+        .nav-btn .icon { font-size: 20px; margin-bottom: 2px; }
+
+        /* ---- Screens ---- */
+        .screen { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ---- Cards ---- */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(139,90,43,0.07);
+        }
+        .prayer-card {
+            background: var(--light);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 18px rgba(139,90,43,0.13);
+        }
+        .prayer-text {
+            font-family: 'EB Garamond', serif;
+            font-size: 21px;
+            line-height: 1.4;
+            color: var(--text);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        .feature-list { list-style: none; text-align: left; }
+        .feature-list li { margin-bottom: 10px; font-size: 14px; padding-left: 4px; }
+
+        /* ---- Buttons ---- */
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(139,90,43,0.25);
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+        .btn:active { transform: scale(0.97); box-shadow: none; }
+        .btn-dark { background: #5c4630; }
+        .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); box-shadow: none; }
+        .btn-success { background: #4a7c59; }
+        .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; margin: 4px; }
+
+        /* ---- Search & Form ---- */
+        .search-box {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            font-size: 16px;
+            background: white;
+            color: var(--text);
+            margin-bottom: 10px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .search-box:focus { border-color: var(--accent); }
+        .form-group { margin-bottom: 14px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--accent); margin-bottom: 5px; }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-textarea { min-height: 88px; resize: vertical; }
+        .form-input:focus, .form-textarea:focus { border-color: var(--gold); }
+
+        /* ---- Result cards ---- */
+        .result-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .section-title {
+            font-family: 'EB Garamond', serif;
+            font-size: 17px;
+            color: var(--accent);
+            margin: 16px 0 6px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+        }
+        .section-title:first-child { margin-top: 0; }
+        .verse-text {
+            font-family: 'EB Garamond', serif;
+            font-size: 18px;
+            line-height: 1.55;
+            background: var(--light);
+            padding: 14px;
+            border-radius: 10px;
+            margin: 8px 0;
+        }
+        .harmony-list { padding-left: 18px; font-size: 14px; }
+        .harmony-list li { margin-bottom: 8px; }
+
+        /* ---- Stats ---- */
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0; }
+        .stat-card { background: var(--card); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid var(--border); }
+        .stat-num { font-size: 22px; color: var(--accent); font-weight: 600; }
+        .stat-label { font-size: 12px; color: #7a6050; }
+
+        /* ---- Tabs ---- */
+        .tab-bar { display: flex; background: #f0e6d2; border-radius: 12px; padding: 3px; margin-bottom: 14px; }
+        .tab { flex: 1; padding: 10px 6px; text-align: center; border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .tab.active { background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: var(--text); font-weight: 600; }
+
+        /* ---- Harmony Gate ---- */
+        .gate-check { padding: 12px 16px; border-radius: 12px; font-size: 14px; margin: 10px 0; }
+        .gate-pass { background: #e8f4ed; border: 1px solid #4a7c59; color: #2d5a40; }
+        .gate-fail { background: #fdf0e8; border: 1px solid #c0602a; color: #7a3a10; }
+        .gate-item { display: flex; align-items: flex-start; gap: 8px; margin: 5px 0; }
+
+        /* ---- Annex entries ---- */
+        .annex-entry { padding: 14px; background: var(--light); border-radius: 12px; margin: 10px 0; border-left: 4px solid var(--gold); }
+        .annex-entry-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+        .annex-entry-text { font-size: 14px; color: #5c4630; line-height: 1.5; }
+
+        /* ---- Sermon items ---- */
+        .sermon-item { padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin: 8px 0; cursor: pointer; }
+        .sermon-item:active { background: var(--light); }
+        .sermon-item-title { font-weight: 600; font-size: 15px; }
+        .sermon-item-meta { font-size: 12px; color: #8b7060; margin-top: 3px; }
+
+        /* ---- Audit ---- */
+        .audit-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin: 8px 0; cursor: pointer; }
+        .audit-checkbox { width: 22px; height: 22px; flex-shrink: 0; cursor: pointer; accent-color: var(--accent); margin-top: 2px; }
+        .audit-label { font-size: 14px; line-height: 1.4; }
+        .audit-verse { font-size: 12px; color: var(--accent); margin-top: 2px; font-style: italic; }
+
+        /* ---- Misc ---- */
+        .flame { font-size: 22px; animation: flicker 1.8s ease-in-out infinite alternate; }
+        @keyframes flicker { 0% { opacity: 0.85; transform: scale(1); } 100% { opacity: 1; transform: scale(1.08); } }
+        h2 { font-family: 'EB Garamond', serif; font-size: 22px; color: var(--text); margin-bottom: 14px; text-align: center; }
+        h3 { font-family: 'EB Garamond', serif; font-size: 18px; color: var(--accent); margin-bottom: 8px; }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+        .tag { display: inline-block; background: #f0e6d2; color: var(--accent); border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 500; margin: 2px; }
+        .copy-btn { font-size: 12px; background: #f0e6d2; color: var(--accent); border: none; padding: 5px 12px; border-radius: 16px; cursor: pointer; margin-top: 6px; font-family: inherit; }
+        .copy-btn:active { opacity: 0.7; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #a07860; font-style: italic; }
+        .notice { background: var(--light); border: 1px solid var(--gold); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #5c4630; margin: 10px 0; line-height: 1.5; }
+        .del-btn { font-size: 12px; background: #fdecea; color: #c0602a; border: none; padding: 5px 12px; border-radius: 16px; cursor: pointer; margin-top: 6px; font-family: inherit; }
+
+        @media (max-width: 480px) { body { max-width: 100%; } .nav { max-width: 100%; } }
     </style>
 </head>
 <body>
-    <!-- Header, Home/Prayer Screen, Explorer, Annex (with new Entry 7), Archive, Audit — all screens fully present -->
-    <!-- Bottom Navigation -->
-    <div class="nav"> ... </div>
 
-    <script>
-        // Full JavaScript (navigation, getHarmony, searchAnnex, localStorage, PWA load event)
-        // Annex Library now includes Entry 7 (Resurrection Power in Regeneration)
-        let annexLibrary = { ... /* your original 6 entries plus new Entry 7 */ };
-        // All functions intact
-    </script>
+<!-- ==================== HEADER ==================== -->
+<div class="header">
+    <div class="header-title">📖 KJV Harmony Companion</div>
+    <div class="header-subtitle">Line upon line · Precept upon precept · Canon-Lock Protected</div>
+</div>
+
+<!-- ==================== HOME SCREEN ==================== -->
+<div id="home-screen" class="screen active">
+    <div class="prayer-card">
+        <div class="prayer-text">"Lord, what wouldest thou have me see in thy Word?"</div>
+        <ul class="feature-list">
+            <li>📖 Full unbreakable KJV harmony — whole context always</li>
+            <li>🔍 11 verse entries with cross-references</li>
+            <li>✝️ Consistent with the whole counsel of God</li>
+            <li>📝 Sermon Builder with Harmony Gate check</li>
+            <li>💾 All your work saved privately on your own device</li>
+        </ul>
+    </div>
+
+    <button onclick="navigateTo('explorer')" class="btn">
+        <span class="flame">🔥</span> Start Harmony Explorer
+    </button>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-num" id="stat-verses">0</div>
+            <div class="stat-label">Verses Explored</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="stat-sermons">0</div>
+            <div class="stat-label">Sermons Saved</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="stat-teachings">0</div>
+            <div class="stat-label">Teachings Filed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num" id="stat-audit">—</div>
+            <div class="stat-label">Audit Score</div>
+        </div>
+    </div>
+
+    <div style="text-align:center; font-size:13px; color:var(--accent); margin-top:20px; font-style:italic;">
+        "The scripture cannot be broken." — John 10:35
+    </div>
+</div>
+
+<!-- ==================== EXPLORER SCREEN ==================== -->
+<div id="explorer-screen" class="screen">
+    <h2>KJV Harmony Explorer</h2>
+
+    <div class="notice">
+        💡 <strong>Try:</strong> John 3:16 · Ephesians 2:8 · Romans 8:28 · John 10:27 · Psalm 23 · Isaiah 53 · Acts 2:38 · John 6:37 · Hebrews 11:1 · 2 Thessalonians 2:13 · Psalm 73:26<br>
+        Or search a topic: <em>grace, election, faith, comfort, trials, atonement</em>
+    </div>
+
+    <input id="verse-input" type="text" class="search-box"
+        placeholder="Verse or topic… (e.g. John 3:16)"
+        onkeypress="if(event.key==='Enter') getHarmony()">
+
+    <button onclick="getHarmony()" class="btn">
+        <span class="flame">🔥</span> Get Harmony
+    </button>
+
+    <div id="harmony-result"></div>
+</div>
+
+<!-- ==================== ANNEX LIBRARY SCREEN ==================== -->
+<div id="annex-screen" class="screen">
+    <h2>Annex Library</h2>
+
+    <div class="tab-bar">
+        <div onclick="switchAnnexTab('core')" id="atab-core" class="tab active">Core Harmony</div>
+        <div onclick="switchAnnexTab('saved')" id="atab-saved" class="tab">Saved Teachings</div>
+    </div>
+
+    <input id="annex-search" type="text" class="search-box"
+        placeholder="Search… (e.g. faith, grace, election, comfort)">
+    <button onclick="searchAnnex()" class="btn btn-dark">Search Storehouse</button>
+
+    <div id="annex-results"></div>
+    <div id="annex-core"></div>
+    <div id="annex-saved" style="display:none;"></div>
+</div>
+
+<!-- ==================== SERMON BUILDER SCREEN ==================== -->
+<div id="sermon-screen" class="screen">
+    <h2>Sermon Builder</h2>
+
+    <div class="tab-bar">
+        <div onclick="switchSermonTab('build')" id="stab-build" class="tab active">Build</div>
+        <div onclick="switchSermonTab('saved')" id="stab-saved" class="tab">Saved Sermons</div>
+    </div>
+
+    <div id="sermon-build">
+        <div class="card">
+            <div class="form-group">
+                <label class="form-label">Sermon Title *</label>
+                <input type="text" id="s-title" class="form-input" placeholder="e.g., The New Birth — John 3">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Primary Scripture Text *</label>
+                <input type="text" id="s-text" class="form-input" placeholder="e.g., John 3:1-21">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Theme / Subject</label>
+                <input type="text" id="s-theme" class="form-input" placeholder="e.g., Sovereign Grace in Regeneration">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Introduction</label>
+                <textarea id="s-intro" class="form-textarea" placeholder="Opening context and purpose of the message…"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Point I — Scripture Reference</label>
+                <input type="text" id="s-p1ref" class="form-input" placeholder="e.g., John 3:3-6">
+                <textarea id="s-p1" class="form-textarea" placeholder="Main point text…"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Point II — Scripture Reference</label>
+                <input type="text" id="s-p2ref" class="form-input" placeholder="e.g., Ezekiel 36:26-27">
+                <textarea id="s-p2" class="form-textarea" placeholder="Main point text…"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Point III — Scripture Reference (optional)</label>
+                <input type="text" id="s-p3ref" class="form-input" placeholder="e.g., Romans 8:29-30">
+                <textarea id="s-p3" class="form-textarea" placeholder="Main point text…"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Conclusion / Application</label>
+                <textarea id="s-concl" class="form-textarea" placeholder="How does this apply to everyday life in Christ?"></textarea>
+            </div>
+        </div>
+
+        <button onclick="checkSermonHarmony()" class="btn btn-outline">⚖️ Check Harmony Gate</button>
+        <div id="sermon-gate-result"></div>
+        <button onclick="saveSermon()" class="btn btn-success">💾 Save Sermon to Archive</button>
+        <button onclick="copySermonFromForm()" class="btn btn-dark">📋 Copy Full Sermon</button>
+    </div>
+
+    <div id="sermon-saved" style="display:none;">
+        <div id="saved-sermon-list"></div>
+    </div>
+</div>
+
+<!-- ==================== SUBMIT TEACHING SCREEN ==================== -->
+<div id="submit-screen" class="screen">
+    <h2>Submit Harmony Teaching</h2>
+
+    <div class="notice">
+        ⚖️ All submissions pass through the <strong>Harmony Gate</strong>. Teachings must be consistent with the whole counsel of God — no verse isolated from its context, nothing contrary to the KJV canon.
+    </div>
+
+    <div class="card">
+        <div class="form-group">
+            <label class="form-label">Teaching Title *</label>
+            <input type="text" id="t-title" class="form-input" placeholder="e.g., Resurrection Power in Regeneration">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Primary Verse Reference *</label>
+            <input type="text" id="t-verse" class="form-input" placeholder="e.g., Ephesians 2:1, 4-5">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Immediate Context — What do the surrounding verses say? *</label>
+            <textarea id="t-context" class="form-textarea" placeholder="Describe what comes before and after the verse. What is the chapter about? Who wrote this, and to whom?"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cross-Reference 1 (Book Chapter:Verse) *</label>
+            <input type="text" id="t-ref1" class="form-input" placeholder="e.g., John 1:12-13 — Born not of the will of man, but of God.">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cross-Reference 2 (Book Chapter:Verse) *</label>
+            <input type="text" id="t-ref2" class="form-input" placeholder="e.g., Ezekiel 36:26-27 — A new heart will I give you…">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cross-Reference 3 (optional)</label>
+            <input type="text" id="t-ref3" class="form-input" placeholder="Additional harmony reference…">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Teaching Notes</label>
+            <textarea id="t-notes" class="form-textarea" placeholder="What does this passage teach? How does it fit the whole of Scripture?"></textarea>
+        </div>
+    </div>
+
+    <button onclick="checkHarmonyGate()" class="btn btn-outline">⚖️ Run Harmony Gate Check</button>
+    <div id="gate-result"></div>
+    <button onclick="submitTeaching()" class="btn btn-success" id="submit-btn" disabled>✅ Submit to Annex Library</button>
+</div>
+
+<!-- ==================== AUDIT SCREEN ==================== -->
+<div id="audit-screen" class="screen">
+    <h2>Self-Audit Tool</h2>
+
+    <div class="card" style="background:var(--light); text-align:center;">
+        <p style="font-family:'EB Garamond',serif; font-size:17px; font-style:italic;">"Examine yourselves, whether ye be in the faith." — 2 Corinthians 13:5</p>
+    </div>
+
+    <h3>Preacher's Harmony Checklist</h3>
+    <div id="audit-list"></div>
+
+    <div style="margin-top:16px; text-align:center;">
+        <div class="stat-card" style="display:inline-block; padding:16px 32px;">
+            <div class="stat-num" id="audit-score-display">—</div>
+            <div class="stat-label">Audit Score</div>
+        </div>
+    </div>
+
+    <button onclick="resetAudit()" class="btn btn-outline" style="margin-top:16px;">↺ Reset Checklist</button>
+</div>
+
+<!-- ==================== BOTTOM NAVIGATION ==================== -->
+<div class="nav">
+    <div onclick="navigateTo('home')" class="nav-btn active" id="nav-home">
+        <span class="icon">🏠</span>Home
+    </div>
+    <div onclick="navigateTo('explorer')" class="nav-btn" id="nav-explorer">
+        <span class="icon">🔍</span>Explore
+    </div>
+    <div onclick="navigateTo('annex')" class="nav-btn" id="nav-annex">
+        <span class="icon">📚</span>Annex
+    </div>
+    <div onclick="navigateTo('sermon')" class="nav-btn" id="nav-sermon">
+        <span class="icon">📝</span>Sermon
+    </div>
+    <div onclick="navigateTo('submit')" class="nav-btn" id="nav-submit">
+        <span class="icon">⚖️</span>Submit
+    </div>
+    <div onclick="navigateTo('audit')" class="nav-btn" id="nav-audit">
+        <span class="icon">✅</span>Audit
+    </div>
+</div>
+
+<script>
+// ================================================================
+// KJV HARMONY DATA — Whole Context, Whole Counsel of God
+// Each entry: verse text, full chapter context, harmony cross-refs,
+//             gentle insights, everyday application, topic tags
+// ================================================================
+const kjvData = {
+    "john 3:16": {
+        verse: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life. — John 3:16",
+        context: "John 3:1-21 — Nicodemus, a ruler of the Jews, comes by night. Jesus declares: 'Except a man be born again, he cannot see the kingdom of God' (v.3). The new birth is of the Spirit — sovereign and unseen, like the wind (vv.5-8). The bronze serpent type (v.14): life came by looking to what was lifted up, not by choosing to be healed. John 3:16 stands within a passage about sovereign new birth and divine initiative. Condemnation is for those who love darkness (vv.19-21). John 3:16 is an assurance text for those born of the Spirit — it affirms the security of those who believe. It harmonizes with John 3:1-20 and should never be read in isolation.",
+        harmony: [
+            "John 3:3,6-8 — Except a man be born again… that which is born of the Spirit is spirit. The wind bloweth where it listeth.",
+            "John 1:12-13 — Born, not of blood, nor of the will of the flesh, nor of the will of man, but of God.",
+            "Ephesians 2:1,4-5 — Dead in trespasses… But God, who is rich in mercy, hath quickened us together with Christ.",
+            "Ezekiel 36:26-27 — A new heart also will I give you… and I will put my spirit within you.",
+            "Romans 5:8 — While we were yet sinners, Christ died for us.",
+            "John 10:35 — The scripture cannot be broken."
+        ],
+        insights: "John 3:16 is an assurance text, not an invitation text stripped from context. It declares the love, the gift, and the certainty of everlasting life for all who believe. That belief is the fruit of sovereign new birth (vv.3-8), not its cause. God's love was revealed at Calvary before any man chose Him.",
+        application: "If thou dost believe on the Son, rejoice — thou hast everlasting life. If uncertain, look not inward to thy choice, but upward to Christ lifted up. The certainty is in Him, not in thee.",
+        tags: ["grace", "new birth", "salvation", "love", "belief", "assurance", "john 3"]
+    },
+
+    "ephesians 2:8": {
+        verse: "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast. — Ephesians 2:8-9",
+        context: "Ephesians 2:1-10 — Paul begins: 'And you hath he quickened, who were dead in trespasses and sins' (v.1). The chapter opens with the condition of man: dead, following the world and the devil, fulfilling lusts (vv.1-3). Then the great pivot: 'But God' (v.4). Salvation is from God's rich mercy and great love. Verse 8 is the summary of what vv.1-7 described. Verse 10 closes: 'we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained.'",
+        harmony: [
+            "Ephesians 2:1 — And you hath he quickened, who were dead in trespasses and sins.",
+            "Titus 3:5 — Not by works of righteousness which we have done, but according to his mercy he saved us.",
+            "Romans 3:24 — Being justified freely by his grace through the redemption that is in Christ Jesus.",
+            "2 Timothy 1:9 — Who hath saved us… not according to our works, but according to his own purpose and grace.",
+            "John 6:44 — No man can come to me, except the Father which hath sent me draw him."
+        ],
+        insights: "Grace is the source of salvation, faith is the instrument, and both are the gift of God. Ephesians 2 presents man as dead — dead men do not choose life. God quickens the dead by sovereign grace. Works boasting is eliminated not merely by saying 'just believe' — the whole system of man's contribution is excluded.",
+        application: "Stand in grace alone. When tempted to measure thyself by works, return to Ephesians 2:1: thou wast dead, and He quickened thee. Thy standing is in His gift, not thy performance.",
+        tags: ["grace", "faith", "salvation", "works", "gift", "dead", "quickened"]
+    },
+
+    "romans 8:28": {
+        verse: "And we know that all things work together for good to them that love God, to them who are the called according to his purpose. — Romans 8:28",
+        context: "Romans 8:26-39 — Paul teaches Spirit-helped prayer (vv.26-27), then gives the anchor verse (v.28) rooted in God's purpose. The Golden Chain follows (vv.29-30): foreknew → predestinated → called → justified → glorified. This is the unbroken chain of God's purpose in salvation. The passage ends with the great question: who can separate us from the love of Christ? (vv.31-39). Romans 8:28 is only 'all things working for good' because of the sovereign purpose in vv.29-30.",
+        harmony: [
+            "Romans 8:29-30 — Whom he did foreknow, he also did predestinate… called… justified… glorified.",
+            "Jeremiah 29:11 — For I know the thoughts that I think toward you, saith the LORD, thoughts of peace.",
+            "Genesis 50:20 — Ye thought evil against me; but God meant it unto good.",
+            "Isaiah 46:10 — My counsel shall stand, and I will do all my pleasure.",
+            "Romans 8:38-39 — Nothing shall be able to separate us from the love of God which is in Christ Jesus."
+        ],
+        insights: "The 'good' of Romans 8:28 is conformity to Christ's image (v.29), not earthly comfort. God works all things — including suffering, hardship, and loss — toward the eternal goal of glorifying His Son in His people. This assurance rests on divine purpose, not on circumstances.",
+        application: "When life is hard and things seem against thee, anchor here: God is not reacting — He ordained. His purpose is thy conformity to Christ. Rest in that purpose today.",
+        tags: ["providence", "sovereignty", "comfort", "golden chain", "predestination", "purpose"]
+    },
+
+    "john 10:27": {
+        verse: "My sheep hear my voice, and I know them, and they follow me: And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand. — John 10:27-28",
+        context: "John 10:1-30 — The Good Shepherd discourse. Jesus describes the shepherd-sheep relationship before verse 27. The sheep hear His voice — they do not hear and then become sheep; they are sheep first. 'I know them' speaks of the intimate, elective knowledge of God. The keeping is doubly secured: 'neither shall any man pluck them out of my hand… My Father… is greater than all; and no man is able to pluck them out of my Father's hand' (vv.28-29). Security rests in both Father and Son.",
+        harmony: [
+            "John 10:3-4 — He calleth his own sheep by name… and the sheep follow him: for they know his voice.",
+            "John 6:39 — This is the Father's will… that of all which he hath given me I should lose nothing.",
+            "Romans 8:38-39 — Nothing shall be able to separate us from the love of God.",
+            "Philippians 1:6 — He which hath begun a good work in you will perform it until the day of Jesus Christ.",
+            "Hebrews 7:25 — He is able to save them to the uttermost… seeing he ever liveth to make intercession."
+        ],
+        insights: "The security of the sheep is not in the sheep's grip on the Shepherd, but in the Shepherd's grip on the sheep. 'They shall never perish' is an absolute promise. The basis is not the sheep's faithfulness but the Shepherd's power, the Father's will, and their unity (v.30).",
+        application: "If thou art one of His sheep — hearing His voice, following Him — rest in the double security of Father and Son. Thy salvation does not rest on thy perseverance; it rests on His keeping power.",
+        tags: ["security", "preservation", "shepherd", "eternal life", "election", "safety"]
+    },
+
+    "psalm 23": {
+        verse: "The LORD is my shepherd; I shall not want. — Psalm 23:1",
+        context: "Psalm 23:1-6 — David's confession of total dependence and total confidence. The Psalm moves from rest (vv.1-2), to restoration (v.3), to guidance (v.3), to fearless walk through death (v.4), to table spread before enemies (v.5), to the final affirmation: goodness and mercy shall follow me all the days of my life, and I will dwell in the house of the LORD for ever (v.6). The Psalm is a whole — beginning in rest and ending in eternal dwelling.",
+        harmony: [
+            "John 10:11,14 — I am the good shepherd: the good shepherd giveth his life for the sheep.",
+            "Psalm 23:6 — Surely goodness and mercy shall follow me all the days of my life.",
+            "Isaiah 40:11 — He shall feed his flock like a shepherd: he shall gather the lambs with his arm.",
+            "Ezekiel 34:15-16 — I will feed my flock… I will seek that which was lost.",
+            "Hebrews 13:20-21 — The God of peace… through the blood of the everlasting covenant, make you perfect."
+        ],
+        insights: "The Psalm is a personal confession ('my shepherd', 'I shall not want') rooted in covenant relationship. The valley of the shadow of death (v.4) is not the end of the journey but a passage through which the shepherd accompanies. The table before enemies (v.5) speaks of vindication and provision in hostile circumstances.",
+        application: "Begin each day with verse 1 as thy confession, not just a wish. 'The LORD is my shepherd' — present tense, certain. Let this anchor quiet thy anxious thoughts today.",
+        tags: ["comfort", "shepherd", "provision", "peace", "trust", "psalms"]
+    },
+
+    "isaiah 53": {
+        verse: "He was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed. — Isaiah 53:5",
+        context: "Isaiah 53:1-12 — Written 700 years before Christ. The servant is despised and rejected (v.3), bears griefs and sorrows (v.4), wounded for transgression (v.5), led as a lamb to the slaughter (v.7), cut off out of the land of the living (v.8). The substitutionary nature is clear: 'he was wounded for OUR transgressions', 'the LORD hath laid on HIM the iniquity of US ALL' (v.6). Verse 10: 'it pleased the LORD to bruise him.' Verse 11: 'by his knowledge shall my righteous servant justify many; for he shall bear their iniquities.'",
+        harmony: [
+            "1 Peter 2:24 — Who his own self bare our sins in his own body on the tree.",
+            "2 Corinthians 5:21 — He hath made him to be sin for us, who knew no sin.",
+            "Romans 5:8 — While we were yet sinners, Christ died for us.",
+            "Matthew 8:17 — Himself took our infirmities, and bare our sicknesses.",
+            "Hebrews 9:28 — So Christ was once offered to bear the sins of many."
+        ],
+        insights: "Isaiah 53 is the spine of substitutionary atonement in the Old Testament. The pronouns are decisive: 'HE bore OUR griefs, OUR transgressions, OUR iniquities.' God's servant takes the punishment that belongs to God's people. This is the heart of the gospel before the cross.",
+        application: "When guilt weighs heavy, turn to Isaiah 53:5. Thy griefs were borne. Thy transgressions were paid for. The exchange is complete. Bring thy burden to the one who was bruised for thee.",
+        tags: ["atonement", "substitution", "cross", "suffering", "prophecy", "redemption", "guilt"]
+    },
+
+    "acts 2:38": {
+        verse: "Then Peter said unto them, Repent, and be baptized every one of you in the name of Jesus Christ for the remission of sins, and ye shall receive the gift of the Holy Ghost. — Acts 2:38",
+        context: "Acts 2:14-41 — Peter's Pentecost sermon. He quotes Joel 2 (vv.17-21), proves from Psalm 16 that Christ would rise (vv.25-28), declares the resurrection and ascension (vv.32-33), and from Psalm 110 declares Jesus Lord and Christ (v.36). The people are 'pricked in their heart' (v.37) — a Spirit-wrought conviction. Verse 38 is the response to this already Spirit-convicted crowd. The context makes clear that repentance here is genuine Spirit-given turning, not mere outward ceremony.",
+        harmony: [
+            "Acts 2:37 — They were pricked in their heart, and said… What shall we do?",
+            "Luke 24:47 — That repentance and remission of sins should be preached in his name among all nations.",
+            "Acts 3:19 — Repent ye therefore, and be converted, that your sins may be blotted out.",
+            "Romans 10:9 — If thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart…",
+            "Galatians 3:27 — For as many of you as have been baptized into Christ have put on Christ."
+        ],
+        insights: "Acts 2:38 must be read in its whole context: Peter did not call a neutral crowd. The Spirit had already pricked their hearts. Repentance precedes baptism. The verse does not stand alone — it is the Spirit's call upon a Spirit-convicted people.",
+        application: "Repentance is not merely sorrow but turning. If thou hast repented and been baptised, receive the assurance: thy sins are remitted and the Spirit dwells within thee. If thou hast not yet repented, the call of Pentecost still stands today.",
+        tags: ["repentance", "baptism", "holy spirit", "pentecost", "acts", "salvation"]
+    },
+
+    "john 6:37": {
+        verse: "All that the Father giveth me shall come to me; and him that cometh to me I will in no wise cast out. — John 6:37",
+        context: "John 6:35-51 — The Bread of Life discourse. Jesus has multiplied bread and the people want to make Him king. He redirects to spiritual bread. Verse 37 is flanked by verse 36 ('ye also have seen me, and believe not') and verse 38 ('I came down from heaven… to do the will of him that sent me'). The Father gives — the Son receives — none are lost (v.39). The divine will secures both the coming and the keeping. Verse 44 closes the argument: 'No man can come to me, except the Father which hath sent me draw him.'",
+        harmony: [
+            "John 6:39 — This is the Father's will… that of all which he hath given me I should lose nothing.",
+            "John 6:44 — No man can come to me, except the Father which hath sent me draw him.",
+            "John 17:6 — Thine they were, and thou gavest them me; and they have kept thy word.",
+            "Romans 8:29-30 — Whom he did foreknow, he also did predestinate… called… justified… glorified.",
+            "John 10:29 — My Father, which gave them me, is greater than all; and no man is able to pluck them out of my Father's hand."
+        ],
+        insights: "John 6:37 contains two great promises: (1) All given by the Father WILL come — certainty of effectual calling; (2) All who come will NEVER be cast out — certainty of preservation. Both together eliminate any possibility of final loss for those the Father has given to the Son.",
+        application: "If thou art in Christ, thou art kept not because of thy hold on Him but because of the Father's gift and the Son's keeping. 'I will in no wise cast out' — never, under any circumstance. This is thy assurance.",
+        tags: ["election", "sovereignty", "security", "drawing", "preservation", "calling"]
+    },
+
+    "hebrews 11:1": {
+        verse: "Now faith is the substance of things hoped for, the evidence of things not seen. — Hebrews 11:1",
+        context: "Hebrews 11:1-40 — The Faith Chapter. Verse 1 defines faith by its objects: hope and the unseen. The chapter demonstrates faith through Old Testament examples: Abel, Enoch, Noah, Abraham, Moses, and others who acted on God's word before seeing fulfilment. Verse 6 is central: 'without faith it is impossible to please him.' The chapter ends noting that these faithful saints 'received not the promise' — they looked forward to Christ whom we look back to (v.40). Faith throughout is always in response to a word from God.",
+        harmony: [
+            "Hebrews 11:6 — But without faith it is impossible to please him: for he that cometh to God must believe that he is.",
+            "Romans 10:17 — So then faith cometh by hearing, and hearing by the word of God.",
+            "Galatians 2:16 — A man is not justified by the works of the law, but by the faith of Jesus Christ.",
+            "2 Corinthians 5:7 — For we walk by faith, not by sight.",
+            "Ephesians 2:8 — For by grace are ye saved through faith; and that not of yourselves: it is the gift of God."
+        ],
+        insights: "Biblical faith is not a leap into the dark but a confident trust in what God has revealed. 'Substance' (Greek: hupostasis) means a title deed, a foundation. Faith lays hold of the divine promise as though already possessed. This is why Abraham could offer Isaac — he knew God could raise the dead (Heb 11:19).",
+        application: "Faith is not feeling. It is resting on the word of God. When feelings fail and sight offers no hope, the object of faith remains unchanged: God's promise, God's character, God's word. Plant thy feet on that.",
+        tags: ["faith", "trust", "hope", "word of God", "assurance", "evidence"]
+    },
+
+    "2 thessalonians 2:13": {
+        verse: "But we are bound to give thanks alway to God for you, brethren beloved of the Lord, because God hath from the beginning chosen you to salvation through sanctification of the Spirit and belief of the truth. — 2 Thessalonians 2:13",
+        context: "2 Thessalonians 2:1-17 — Paul has described the man of sin and the great apostasy. In contrast to those who perish 'because they received not the love of the truth' (v.10), Paul gives thanks for the Thessalonians — chosen from the beginning, set apart by the Spirit, brought to believe the truth. The divine order here is: Election → Spirit's sanctifying work → belief of the truth. The election is 'from the beginning' — not based on foreseen faith but on God's prior choice.",
+        harmony: [
+            "Ephesians 1:4 — According as he hath chosen us in him before the foundation of the world.",
+            "John 15:16 — Ye have not chosen me, but I have chosen you.",
+            "1 Peter 1:2 — Elect according to the foreknowledge of God the Father, through sanctification of the Spirit.",
+            "Romans 11:5 — There is a remnant according to the election of grace.",
+            "John 17:17 — Sanctify them through thy truth: thy word is truth."
+        ],
+        insights: "This verse is a complete picture of sovereign salvation: the Father's choice from eternity, the Spirit's work of sanctification, and belief of the truth as the result. It answers the question: why do some believe and others not? The answer begins in the eternal purpose of God, not in man's decision.",
+        application: "If thou dost believe the truth of the gospel, give thanks today — not primarily to thyself, but to God who chose thee from the beginning and sent His Spirit to open thine eyes. This is the ground of genuine humility and unshakeable gratitude.",
+        tags: ["election", "sanctification", "spirit", "grace", "truth", "thanksgiving", "sovereignty"]
+    },
+
+    "psalm 73:26": {
+        verse: "My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever. — Psalm 73:26",
+        context: "Psalm 73:1-28 — Asaph begins with envy of the wicked (vv.2-14), nearly slipping. Then he enters the sanctuary of God (v.17) and sees the end of the wicked. He confesses his foolishness (vv.21-22), then declares the wonder of God's presence: 'Thou holdest me by my right hand' (v.23). Verse 26 is the conclusion of a man who nearly lost faith but was held by God throughout. The Psalm is a testimony to God's keeping power through the valley of doubt.",
+        harmony: [
+            "Psalm 73:23-24 — Nevertheless I am continually with thee: thou hast holden me by my right hand.",
+            "Isaiah 40:29 — He giveth power to the faint; and to them that have no might he increaseth strength.",
+            "2 Corinthians 12:9 — My grace is sufficient for thee: for my strength is made perfect in weakness.",
+            "Lamentations 3:24 — The LORD is my portion, saith my soul; therefore will I hope in him.",
+            "Philippians 4:13 — I can do all things through Christ which strengtheneth me."
+        ],
+        insights: "Psalm 73:26 is spoken by a man who has just confessed that his flesh and heart fail. It is not triumphalism — it is confessed weakness met by God's strength. The contrast is total: man's frailty versus God's eternal portion. This is the pattern of grace: strength in weakness, not strength instead of weakness.",
+        application: "When thou art weary and thy heart fails, do not pretend otherwise. Bring the failing heart to the God who is its strength. The very admission of weakness opens the door to the strength of thy portion for ever.",
+        tags: ["weakness", "comfort", "keeping", "strength", "portion", "trials", "frailty"]
+    }
+};
+
+// Book alias normalization for flexible searching
+const bookAliases = {
+    "jn": "john", "joh": "john", "ps": "psalm", "psa": "psalm",
+    "eph": "ephesians", "rom": "romans", "rm": "romans",
+    "heb": "hebrews", "isa": "isaiah", "2thes": "2 thessalonians",
+    "2th": "2 thessalonians", "act": "acts",
+    "mat": "matthew", "mt": "matthew", "mk": "mark", "lk": "luke",
+    "col": "colossians", "phil": "philippians", "gal": "galatians",
+    "1cor": "1 corinthians", "2cor": "2 corinthians",
+    "1pet": "1 peter", "2pet": "2 peter",
+    "1tim": "1 timothy", "2tim": "2 timothy"
+};
+
+function findVerseData(query) {
+    let q = query.toLowerCase().trim();
+    // Normalize common abbreviations
+    for (const [alias, full] of Object.entries(bookAliases)) {
+        const re = new RegExp("^" + alias + "\\b", "i");
+        if (re.test(q)) { q = q.replace(re, full); break; }
+    }
+    // Direct match
+    if (kjvData[q]) return kjvData[q];
+    // Substring match on key
+    for (const key of Object.keys(kjvData)) {
+        if (q.includes(key) || key.includes(q.replace(/[:\-\s]*\d.*$/, "").trim())) return kjvData[key];
+    }
+    // Tag / topic match
+    for (const data of Object.values(kjvData)) {
+        if ((data.tags || []).some(tag => q.includes(tag))) return data;
+    }
+    // Content match in insights/context
+    for (const data of Object.values(kjvData)) {
+        const haystack = (data.insights + data.context + data.application).toLowerCase();
+        const words = q.split(/\s+/).filter(w => w.length > 4);
+        if (words.length > 0 && words.some(w => haystack.includes(w))) return data;
+    }
+    return null;
+}
+
+// ================================================================
+// CORE ANNEX LIBRARY
+// ================================================================
+const coreAnnex = [
+    {
+        id: "ca-1",
+        name: "The Nature and Course of Faith",
+        ref: "Romans 8:15-17",
+        entry: "Faith is not the cause of new birth but its fruit. The Spirit of adoption produces the cry 'Abba, Father' — life precedes response. Faith comes by hearing (Rom 10:17), but hearing with spiritual ears requires ears created by the Spirit (Ezek 36:26). The cause is grace; the course is faith.",
+        tags: ["faith", "new birth", "spirit", "adoption"]
+    },
+    {
+        id: "ca-2",
+        name: "Approved Workmen and Labor in Christ",
+        ref: "Ephesians 2:10; 2 Timothy 2:15",
+        entry: "We are His workmanship, created in Christ Jesus unto good works which God hath before ordained (Eph 2:10). Study to shew thyself approved — rightly dividing the word of truth. The workman labors from the finished work, not toward it. Good works follow from grace; they do not earn it.",
+        tags: ["works", "labour", "study", "approved"]
+    },
+    {
+        id: "ca-3",
+        name: "The Heavenly Courtroom and Names Secured",
+        ref: "Daniel 7:9-10; Revelation 20:12",
+        entry: "The Ancient of Days is seated, the books are opened. The names of God's elect are written in the Lamb's book of life. The court sits in heaven; the verdict was rendered at Calvary — 'It is finished.' No charge can stand against those whom Christ has redeemed (Rom 8:33-34).",
+        tags: ["judgment", "election", "names", "finished work", "security"]
+    },
+    {
+        id: "ca-4",
+        name: "Eternal Grace of Election and Predestination",
+        ref: "John 6:37; Ephesians 1:4",
+        entry: "Chosen in Him before the foundation of the world (Eph 1:4). All that the Father giveth shall come. Election is unto holiness and love, not unto pride. The ground of election is God's sovereign will and love, not foreseen human merit (Rom 9:11-13).",
+        tags: ["election", "predestination", "grace", "sovereignty", "chosen"]
+    },
+    {
+        id: "ca-5",
+        name: "Trials, Frailty, and God's Keeping Power",
+        ref: "Psalm 73:26",
+        entry: "When flesh and heart fail — and they will — the strength is in God as our portion. Asaph nearly slipped (Ps 73:2) but was holden by God's right hand (v.23). The pattern of grace is strength in weakness, not immunity from it. The furnace of trial purifies but does not destroy the elect (Isa 43:2).",
+        tags: ["trials", "weakness", "keeping", "comfort", "strength", "frailty"]
+    },
+    {
+        id: "ca-6",
+        name: "Spiritual Warfare and Victory in Christ",
+        ref: "John 10:10; Ephesians 6:11-16",
+        entry: "The thief cometh to steal, kill, and destroy — but Christ came that we might have life abundantly. The battle is real; the victory is certain. Put on the whole armour of God (Eph 6:11). The shield of faith quencheth all the fiery darts of the wicked (v.16). We overcome by the blood of the Lamb.",
+        tags: ["warfare", "victory", "armour", "devil", "life", "faith"]
+    },
+    {
+        id: "ca-7",
+        name: "Resurrection Power in Regeneration",
+        ref: "Ephesians 2:4-6; John 5:24-25",
+        entry: "God quickened us together with Christ (Eph 2:5). The hour is coming — and now is — when the dead shall hear the voice of the Son of God: and they that hear shall live (John 5:25). Regeneration is resurrection. The same power that raised Christ from the dead is at work in every born-again soul.",
+        tags: ["regeneration", "resurrection", "power", "new birth", "quickened", "life"]
+    }
+];
+
+// ================================================================
+// AUDIT CHECKLIST
+// ================================================================
+const auditItems = [
+    { id: "a1", text: "I read the passage in full context — not just an isolated verse", ref: "2 Timothy 2:15" },
+    { id: "a2", text: "I checked at least two cross-references before teaching this truth", ref: "Isaiah 28:10" },
+    { id: "a3", text: "I did not use Scripture to support what I already believed — I let it speak", ref: "John 5:39-40" },
+    { id: "a4", text: "The teaching harmonizes with the whole counsel of God, not just one passage", ref: "Acts 20:27" },
+    { id: "a5", text: "I could explain this passage in a way a 12-year-old would understand", ref: "Mark 10:15" },
+    { id: "a6", text: "I examined the original setting: who wrote this, to whom, and why", ref: "2 Timothy 3:16-17" },
+    { id: "a7", text: "I acknowledged the sovereignty of God in this passage, not just human response", ref: "Proverbs 16:33" },
+    { id: "a8", text: "I can state the main point of this passage in one sentence", ref: "Habakkuk 2:2" },
+    { id: "a9", text: "I showed how this passage points to Christ or His finished work", ref: "Luke 24:27" },
+    { id: "a10", text: "I applied this passage to everyday life, not just doctrine alone", ref: "James 1:22" }
+];
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function navigateTo(screen) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(screen + "-screen").classList.add("active");
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("nav-" + screen).classList.add("active");
+    window.scrollTo(0, 0);
+    if (screen === "home") updateStats();
+    if (screen === "annex") { renderCoreAnnex(); if (currentAnnexTab === "saved") renderSavedTeachings(); }
+    if (screen === "sermon" && currentSermonTab === "saved") renderSavedSermons();
+    if (screen === "audit") renderAudit();
+}
+
+// ================================================================
+// STATISTICS
+// ================================================================
+function updateStats() {
+    const explored = JSON.parse(localStorage.getItem("kjv-explored") || "[]").length;
+    const sermons = JSON.parse(localStorage.getItem("kjv-sermons") || "[]").length;
+    const teachings = JSON.parse(localStorage.getItem("kjv-teachings") || "[]").length;
+    const auditScore = localStorage.getItem("kjv-audit-score") || "—";
+    document.getElementById("stat-verses").textContent = explored;
+    document.getElementById("stat-sermons").textContent = sermons;
+    document.getElementById("stat-teachings").textContent = teachings;
+    document.getElementById("stat-audit").textContent = auditScore;
+}
+
+// ================================================================
+// HARMONY EXPLORER
+// ================================================================
+let _currentHarmony = null;
+
+function getHarmony() {
+    const input = document.getElementById("verse-input").value.trim();
+    const resultDiv = document.getElementById("harmony-result");
+    if (!input) {
+        resultDiv.innerHTML = '<p class="empty-state">Enter a verse reference or topic above to begin.</p>';
+        return;
+    }
+    const data = findVerseData(input);
+    if (!data) {
+        resultDiv.innerHTML = `
+            <div class="result-card">
+                <h3>📖 Verse Not Yet Indexed</h3>
+                <p style="font-size:14px;margin-top:8px;">"<strong>${esc(input)}</strong>" is not yet in the harmony database.</p>
+                <p style="font-size:14px;margin-top:8px;">Try: <strong>John 3:16 · Ephesians 2:8 · Romans 8:28 · John 10:27 · Psalm 23 · Isaiah 53 · Acts 2:38 · John 6:37 · Hebrews 11:1 · 2 Thessalonians 2:13 · Psalm 73:26</strong></p>
+                <p style="font-size:14px;margin-top:8px;">Or use the <strong>Submit</strong> tab to add this teaching through the Harmony Gate!</p>
+                <div class="notice" style="margin-top:12px;">"The scripture cannot be broken." — John 10:35</div>
+            </div>`;
+        return;
+    }
+    _currentHarmony = data;
+    // Track explored verses
+    const explored = JSON.parse(localStorage.getItem("kjv-explored") || "[]");
+    const key = input.toLowerCase().trim();
+    if (!explored.includes(key)) { explored.push(key); localStorage.setItem("kjv-explored", JSON.stringify(explored)); }
+
+    const harmonyHtml = data.harmony.map(h => `<li style="margin-bottom:8px;">${esc(h)}</li>`).join("");
+    const tagsHtml = (data.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join(" ");
+
+    resultDiv.innerHTML = `
+        <div class="result-card">
+            <div class="section-title">📖 Primary Verse</div>
+            <div class="verse-text">${esc(data.verse)}</div>
+            <button onclick="copyCurrentVerse()" class="copy-btn">📋 Copy Verse</button>
+
+            <div class="section-title">📜 Immediate Context (Whole Chapter Flow)</div>
+            <div style="font-size:14px;background:var(--light);padding:14px;border-radius:10px;line-height:1.6;">${esc(data.context)}</div>
+
+            <div class="section-title">🔗 Harmony (Line upon Line)</div>
+            <ul class="harmony-list">${harmonyHtml}</ul>
+
+            <div class="section-title">💡 Gentle Insights</div>
+            <p style="font-size:14px;line-height:1.6;">${esc(data.insights)}</p>
+
+            <div class="section-title">🌱 Everyday Application</div>
+            <p style="font-size:14px;line-height:1.6;">${esc(data.application)}</p>
+
+            <div style="margin-top:12px;">${tagsHtml}</div>
+            <button onclick="saveHarmonyToAnnex()" class="btn btn-dark" style="margin-top:16px;">💾 Save to My Annex</button>
+        </div>`;
+}
+
+function copyCurrentVerse() {
+    if (_currentHarmony) copyText(_currentHarmony.verse);
+}
+
+function saveHarmonyToAnnex() {
+    if (!_currentHarmony) return;
+    const input = document.getElementById("verse-input").value.trim();
+    const teachings = JSON.parse(localStorage.getItem("kjv-teachings") || "[]");
+    const key = input.toUpperCase();
+    if (teachings.find(t => t.title === key)) { alert("Already saved to your Annex!"); return; }
+    teachings.push({
+        id: Date.now().toString(),
+        title: key,
+        verse: _currentHarmony.verse,
+        notes: _currentHarmony.insights,
+        context: _currentHarmony.context,
+        refs: _currentHarmony.harmony.join("\n"),
+        date: new Date().toLocaleDateString(),
+        source: "explorer"
+    });
+    localStorage.setItem("kjv-teachings", JSON.stringify(teachings));
+    alert("✅ Saved to your Annex Library! View it under Annex → Saved Teachings.");
+}
+
+// ================================================================
+// ANNEX LIBRARY
+// ================================================================
+let currentAnnexTab = "core";
+
+function switchAnnexTab(tab) {
+    currentAnnexTab = tab;
+    ["core", "saved"].forEach(t => {
+        document.getElementById("atab-" + t).classList.toggle("active", t === tab);
+        document.getElementById("annex-" + t).style.display = t === tab ? "block" : "none";
+    });
+    document.getElementById("annex-results").innerHTML = "";
+    if (tab === "saved") renderSavedTeachings();
+}
+
+function renderCoreAnnex() {
+    document.getElementById("annex-core").innerHTML = coreAnnex.map(e => `
+        <div class="annex-entry">
+            <div class="annex-entry-title">${esc(e.name)}</div>
+            <div style="font-size:12px;color:var(--accent);margin-bottom:4px;">${esc(e.ref)}</div>
+            <div class="annex-entry-text">${esc(e.entry)}</div>
+            <div style="margin-top:6px;">${e.tags.map(t => `<span class="tag">${esc(t)}</span>`).join(" ")}</div>
+        </div>`).join("");
+}
+
+function renderSavedTeachings() {
+    const teachings = JSON.parse(localStorage.getItem("kjv-teachings") || "[]").reverse();
+    const el = document.getElementById("annex-saved");
+    if (!teachings.length) {
+        el.innerHTML = '<p class="empty-state">No saved teachings yet. Explore a verse and save it, or submit one through the Harmony Gate!</p>';
+        return;
+    }
+    el.innerHTML = teachings.map(t => `
+        <div class="annex-entry">
+            <div class="annex-entry-title">${esc(t.title)}</div>
+            <div style="font-size:12px;color:#8b7060;margin-bottom:4px;">Saved ${esc(t.date || "")}</div>
+            <div class="annex-entry-text">${esc(t.notes || "")}</div>
+            <button onclick="deleteTeaching('${esc(t.id)}')" class="del-btn">🗑 Remove</button>
+        </div>`).join("");
+}
+
+function deleteTeaching(id) {
+    if (!confirm("Remove this teaching from your Annex?")) return;
+    const teachings = JSON.parse(localStorage.getItem("kjv-teachings") || "[]").filter(t => t.id !== id);
+    localStorage.setItem("kjv-teachings", JSON.stringify(teachings));
+    renderSavedTeachings();
+}
+
+function searchAnnex() {
+    const query = document.getElementById("annex-search").value.trim().toLowerCase();
+    const resultsDiv = document.getElementById("annex-results");
+    if (!query) { resultsDiv.innerHTML = ""; return; }
+
+    const coreResults = coreAnnex.filter(e =>
+        e.name.toLowerCase().includes(query) ||
+        e.entry.toLowerCase().includes(query) ||
+        e.tags.some(t => t.includes(query)) ||
+        e.ref.toLowerCase().includes(query));
+
+    const verseResults = Object.entries(kjvData).filter(([k, v]) =>
+        k.includes(query) ||
+        (v.tags || []).some(t => t.includes(query)) ||
+        v.insights.toLowerCase().includes(query) ||
+        v.context.toLowerCase().includes(query));
+
+    if (!coreResults.length && !verseResults.length) {
+        resultsDiv.innerHTML = `<p class="empty-state">No results for "${esc(query)}". Try: faith, grace, election, comfort, atonement, sovereignty.</p>`;
+        return;
+    }
+
+    let html = `<div class="result-card"><strong>Results for "${esc(query)}"</strong><hr class="divider">`;
+    coreResults.forEach(e => {
+        html += `<div class="annex-entry">
+            <div class="annex-entry-title">📚 ${esc(e.name)}</div>
+            <div style="font-size:12px;color:var(--accent);margin-bottom:4px;">${esc(e.ref)}</div>
+            <div class="annex-entry-text">${esc(e.entry)}</div>
+        </div>`;
+    });
+    verseResults.forEach(([key, v]) => {
+        html += `<div class="annex-entry">
+            <div class="annex-entry-title">🔍 ${esc(key.toUpperCase())}</div>
+            <div class="annex-entry-text">${esc(v.insights.substring(0, 140))}…</div>
+            <button onclick="openInExplorer('${esc(key)}')" class="copy-btn" style="margin-top:6px;">Open in Explorer →</button>
+        </div>`;
+    });
+    html += "</div>";
+    resultsDiv.innerHTML = html;
+}
+
+function openInExplorer(key) {
+    document.getElementById("verse-input").value = key;
+    navigateTo("explorer");
+    getHarmony();
+}
+
+// ================================================================
+// SERMON BUILDER
+// ================================================================
+let currentSermonTab = "build";
+
+function switchSermonTab(tab) {
+    currentSermonTab = tab;
+    ["build", "saved"].forEach(t => {
+        document.getElementById("stab-" + t).classList.toggle("active", t === tab);
+        document.getElementById("sermon-" + t).style.display = t === tab ? "block" : "none";
+    });
+    if (tab === "saved") renderSavedSermons();
+}
+
+function getSermonFields() {
+    const ids = ["title", "text", "theme", "intro", "p1ref", "p1", "p2ref", "p2", "p3ref", "p3", "concl"];
+    const out = {};
+    ids.forEach(id => { out[id] = document.getElementById("s-" + id).value.trim(); });
+    return out;
+}
+
+function checkSermonHarmony() {
+    const s = getSermonFields();
+    const checks = [
+        { label: "Sermon has a title", pass: s.title.length > 2 },
+        { label: "Primary scripture text provided", pass: s.text.length > 2 },
+        { label: "Introduction written (at least a sentence)", pass: s.intro.length > 20 },
+        { label: "Point I has both scripture reference and text", pass: s.p1ref.length > 2 && s.p1.length > 10 },
+        { label: "Point II provided", pass: s.p2.length > 10 },
+        { label: "Scripture references contain chapter:verse", pass: /\d+:\d+/.test(s.p1ref + s.p2ref + s.p3ref + s.text) },
+        { label: "Conclusion / application written", pass: s.concl.length > 20 }
+    ];
+    const passed = checks.filter(c => c.pass).length;
+    const allPass = checks.every(c => c.pass);
+    const checksHtml = checks.map(c => `<div class="gate-item">${c.pass ? "✅" : "❌"} <span>${esc(c.label)}</span></div>`).join("");
+    document.getElementById("sermon-gate-result").innerHTML = `
+        <div class="gate-check ${allPass ? "gate-pass" : "gate-fail"}">
+            <strong>${allPass ? "✅ Harmony Gate: PASSED" : `⚠️ ${passed}/${checks.length} checks passed — complete the missing fields`}</strong>
+            <hr class="divider" style="margin:8px 0;">${checksHtml}
+        </div>`;
+}
+
+function saveSermon() {
+    const s = getSermonFields();
+    if (!s.title) { alert("Please enter a sermon title before saving."); return; }
+    const sermons = JSON.parse(localStorage.getItem("kjv-sermons") || "[]");
+    const idx = sermons.findIndex(x => x.title === s.title);
+    const sermon = { ...s, id: idx >= 0 ? sermons[idx].id : Date.now().toString(), date: new Date().toLocaleDateString() };
+    if (idx >= 0) {
+        if (!confirm(`"${s.title}" already exists. Replace it?`)) return;
+        sermons[idx] = sermon;
+    } else {
+        sermons.push(sermon);
+    }
+    localStorage.setItem("kjv-sermons", JSON.stringify(sermons));
+    alert("✅ Sermon saved! Find it under Saved Sermons.");
+}
+
+function buildSermonText(s) {
+    return [
+        `SERMON: ${s.title}`,
+        `Text: ${s.text}`,
+        s.theme ? `Theme: ${s.theme}` : "",
+        "",
+        "INTRODUCTION",
+        s.intro,
+        "",
+        `POINT I  (${s.p1ref})`,
+        s.p1,
+        s.p2 ? `\nPOINT II  (${s.p2ref})\n${s.p2}` : "",
+        s.p3 ? `\nPOINT III  (${s.p3ref})\n${s.p3}` : "",
+        "",
+        "CONCLUSION",
+        s.concl,
+        "",
+        "— KJV Harmony Companion —"
+    ].filter(x => x !== "").join("\n");
+}
+
+function copySermonFromForm() {
+    copyText(buildSermonText(getSermonFields()));
+}
+
+function renderSavedSermons() {
+    const sermons = JSON.parse(localStorage.getItem("kjv-sermons") || "[]").reverse();
+    const el = document.getElementById("saved-sermon-list");
+    if (!sermons.length) {
+        el.innerHTML = '<p class="empty-state">No sermons saved yet. Build your first one under the Build tab!</p>';
+        return;
+    }
+    el.innerHTML = sermons.map(s => `
+        <div class="sermon-item">
+            <div class="sermon-item-title">📖 ${esc(s.title)}</div>
+            <div class="sermon-item-meta">${esc(s.text || "")} · Saved ${esc(s.date || "")}</div>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                <button onclick="loadSermon('${esc(s.id)}')" class="copy-btn">✏️ Edit</button>
+                <button onclick="copySermonById('${esc(s.id)}')" class="copy-btn">📋 Copy</button>
+                <button onclick="deleteSermon('${esc(s.id)}')" class="del-btn">🗑 Delete</button>
+            </div>
+        </div>`).join("");
+}
+
+function loadSermon(id) {
+    const s = JSON.parse(localStorage.getItem("kjv-sermons") || "[]").find(x => x.id === id);
+    if (!s) return;
+    ["title", "text", "theme", "intro", "p1ref", "p1", "p2ref", "p2", "p3ref", "p3", "concl"].forEach(f => {
+        document.getElementById("s-" + f).value = s[f] || "";
+    });
+    document.getElementById("sermon-gate-result").innerHTML = "";
+    switchSermonTab("build");
+    window.scrollTo(0, 0);
+}
+
+function deleteSermon(id) {
+    if (!confirm("Delete this sermon from your archive?")) return;
+    const sermons = JSON.parse(localStorage.getItem("kjv-sermons") || "[]").filter(s => s.id !== id);
+    localStorage.setItem("kjv-sermons", JSON.stringify(sermons));
+    renderSavedSermons();
+}
+
+function copySermonById(id) {
+    const s = JSON.parse(localStorage.getItem("kjv-sermons") || "[]").find(x => x.id === id);
+    if (s) copyText(buildSermonText(s));
+}
+
+// ================================================================
+// HARMONY GATE — SUBMIT TEACHING
+// ================================================================
+let _gateCleared = false;
+
+function checkHarmonyGate() {
+    const title = document.getElementById("t-title").value.trim();
+    const verse = document.getElementById("t-verse").value.trim();
+    const context = document.getElementById("t-context").value.trim();
+    const ref1 = document.getElementById("t-ref1").value.trim();
+    const ref2 = document.getElementById("t-ref2").value.trim();
+    const notes = document.getElementById("t-notes").value.trim();
+    const checks = [
+        { label: "Teaching has a title", pass: title.length > 3 },
+        { label: "Primary verse reference provided", pass: /\d+:\d+/.test(verse) || /[a-z]+ \d+/i.test(verse) },
+        { label: "Surrounding context described (not isolated)", pass: context.length > 60 },
+        { label: "First cross-reference includes a scripture reference", pass: ref1.length > 5 && /\d+:\d+/.test(ref1) },
+        { label: "Second cross-reference includes a scripture reference", pass: ref2.length > 5 && /\d+:\d+/.test(ref2) },
+        { label: "Teaching notes provided", pass: notes.length > 20 }
+    ];
+    const allPass = checks.every(c => c.pass);
+    _gateCleared = allPass;
+    const checksHtml = checks.map(c => `<div class="gate-item">${c.pass ? "✅" : "❌"} <span>${esc(c.label)}</span></div>`).join("");
+    document.getElementById("gate-result").innerHTML = `
+        <div class="gate-check ${allPass ? "gate-pass" : "gate-fail"}">
+            <strong>${allPass ? "✅ HARMONY GATE: PASSED — Ready to submit!" : `⚠️ ${checks.filter(c => c.pass).length}/${checks.length} checks passed — please complete the required fields`}</strong>
+            <hr class="divider" style="margin:8px 0;">${checksHtml}
+            ${allPass ? '<p style="margin-top:8px;font-size:13px;">Your teaching is consistent with whole-context KJV teaching. Press Submit to add it to your Annex Library.</p>' : ""}
+        </div>`;
+    document.getElementById("submit-btn").disabled = !allPass;
+}
+
+function submitTeaching() {
+    if (!_gateCleared) { checkHarmonyGate(); return; }
+    const title = document.getElementById("t-title").value.trim();
+    const teachings = JSON.parse(localStorage.getItem("kjv-teachings") || "[]");
+    const idx = teachings.findIndex(t => t.title.toLowerCase() === title.toLowerCase());
+    const teaching = {
+        id: idx >= 0 ? teachings[idx].id : Date.now().toString(),
+        title,
+        verse: document.getElementById("t-verse").value.trim(),
+        context: document.getElementById("t-context").value.trim(),
+        refs: [document.getElementById("t-ref1").value.trim(), document.getElementById("t-ref2").value.trim(), document.getElementById("t-ref3").value.trim()].filter(Boolean).join("\n"),
+        notes: document.getElementById("t-notes").value.trim(),
+        date: new Date().toLocaleDateString(),
+        source: "submitted"
+    };
+    if (idx >= 0) {
+        if (!confirm(`"${title}" already exists. Replace it?`)) return;
+        teachings[idx] = teaching;
+    } else {
+        teachings.push(teaching);
+    }
+    localStorage.setItem("kjv-teachings", JSON.stringify(teachings));
+    ["t-title", "t-verse", "t-context", "t-ref1", "t-ref2", "t-ref3", "t-notes"].forEach(id => {
+        document.getElementById(id).value = "";
+    });
+    document.getElementById("gate-result").innerHTML = "";
+    _gateCleared = false;
+    document.getElementById("submit-btn").disabled = true;
+    alert(`✅ "${title}" has passed the Harmony Gate and been added to your Annex Library!`);
+    navigateTo("annex");
+    switchAnnexTab("saved");
+}
+
+// ================================================================
+// SELF-AUDIT
+// ================================================================
+function renderAudit() {
+    const saved = JSON.parse(localStorage.getItem("kjv-audit") || "{}");
+    document.getElementById("audit-list").innerHTML = auditItems.map(item => `
+        <label class="audit-item" for="audit-${esc(item.id)}">
+            <input type="checkbox" class="audit-checkbox" id="audit-${esc(item.id)}"
+                ${saved[item.id] ? "checked" : ""}
+                onchange="saveAuditItem('${esc(item.id)}', this.checked)">
+            <div>
+                <div class="audit-label">${esc(item.text)}</div>
+                <div class="audit-verse">${esc(item.ref)}</div>
+            </div>
+        </label>`).join("");
+    updateAuditScore();
+}
+
+function saveAuditItem(id, checked) {
+    const saved = JSON.parse(localStorage.getItem("kjv-audit") || "{}");
+    saved[id] = checked;
+    localStorage.setItem("kjv-audit", JSON.stringify(saved));
+    updateAuditScore();
+}
+
+function updateAuditScore() {
+    const saved = JSON.parse(localStorage.getItem("kjv-audit") || "{}");
+    const checked = Object.values(saved).filter(Boolean).length;
+    const pct = Math.round((checked / auditItems.length) * 100) + "%";
+    const el = document.getElementById("audit-score-display");
+    if (el) el.textContent = pct;
+    localStorage.setItem("kjv-audit-score", pct);
+}
+
+function resetAudit() {
+    if (!confirm("Reset all audit checkboxes?")) return;
+    localStorage.removeItem("kjv-audit");
+    localStorage.setItem("kjv-audit-score", "—");
+    renderAudit();
+}
+
+// ================================================================
+// UTILITIES
+// ================================================================
+function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => alert("✅ Copied to clipboard!")).catch(err => { console.warn("Clipboard API failed, using fallback:", err); fallbackCopy(text); });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand("copy"); alert("✅ Copied!"); } catch (_) { alert("Copy failed — please select and copy manually."); }
+    document.body.removeChild(ta);
+}
+
+function esc(str) {
+    if (str == null) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+// ================================================================
+// PWA & STARTUP
+// ================================================================
+window.addEventListener("load", () => {
+    updateStats();
+    renderCoreAnnex();
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js").catch(err => console.warn("Service worker registration failed:", err));
+    }
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "/" && document.getElementById("explorer-screen").classList.contains("active")) {
+            e.preventDefault();
+            document.getElementById("verse-input").focus();
+        }
+    });
+
+    document.addEventListener("touchstart", () => {}, { passive: true });
+});
+</script>
 </body>
 </html>
