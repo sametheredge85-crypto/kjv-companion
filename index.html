@@ -167,7 +167,7 @@ function runHarmony() {
   document.getElementById("output").style.display = "block";
 
   // BASIC verse detection (simple)
-  const isVerse = input.match(/\b\d+:\d+\b/);
+  const isVerse = /\b\d+:\d+\b/.test(input);
 
   // Core doctrinal anchors (your framework)
   const anchors = [
