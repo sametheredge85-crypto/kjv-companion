@@ -1,65 +1,24 @@
-# CLAUDE.md
+# CLAUDE.md – King James Harmony Companion AI Prompting Guide
+**Project**: sametheredge85-crypto/kjv-companion  
+**Purpose**: One-stop guide for using AI (Claude, Grok, etc.) to build and maintain the KJV Harmony tools.
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+## Core Files (Always reference these)
+- `harmony-rules.md` → official checklist (attach to every /goal run)
+- `harmony-exegete-prompt.md` → full exegete /goal prompt
+- `harmony-reply-generator.md` → personal letter / doctrinal reply generator
+- `half_hinges_bible.md` → role-play layers (Plain English Pastor + Paul Harvey storyteller)
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+## How to Use AI in This Project
+1. Always attach `harmony-rules.md` when running any /goal command.
+2. Use the **King James Harmony Reply Generator** for personal/doctrinal correspondence.
+3. Use the **Harmony Exegete Prompt** for deep exegesis and point-by-point replies.
+4. All output must be clean, polished markdown ready for the PWA or print.
 
-## 1. Think Before Coding
+## Technology Stack
+- Static PWA (HTML + JS + Tailwind)
+- Local KJV data in `data/`
+- AI-driven tools in `preaching-assistant.html`, `harmonizer.html`, etc.
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+**Never deviate from KJV 1769 text. Scripture interprets Scripture. The scripture cannot be broken.**
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-
-## 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+See `docs/` for full maintenance prompts and `harmony-rules.md` for doctrinal guardrails.
